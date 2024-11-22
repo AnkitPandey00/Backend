@@ -60,26 +60,32 @@ export const register = catchAsyncErrors(async (req, res, next) => {
   sendToken(user, 200, "User registered successfully", res);
 });
 
-export const login = catchAsyncErrors(async (req, res, next) => {
+export const login = async (req, res, next) => {
   const { email, password, role } = req.body;
   if (!email || !password || !role) {
-    return next(new ErrorHandler("Please fill full form!", 400));
+    return res.status(404).json({
+      message:"All field required"
+    })
   }
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
-    return next(new ErrorHandler("Invalid email or password!", 400));
+    return res.status(404).json({
+      message:"Invalid Email or Password"
+    })
   }
   const isPasswordMatched = await user.comparePassword(password);
   if (!isPasswordMatched) {
-    return next(new ErrorHandler("Invalid email or password", 400));
+    return res.status(404).json({
+      message:"Wrong Password"
+    })
   }
   if (user.role !== role) {
-    return next(
-      new ErrorHandler(`User with provided role(${role}) not found`, 400)
-    );
+    return res.status(404).json({
+      message:"Role Not matched"
+    })
   }
   sendToken(user, 200, "User logged in successfully", res);
-});
+};
 
 export const logout = catchAsyncErrors((req, res, next) => {
   res
