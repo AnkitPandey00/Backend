@@ -10,15 +10,17 @@ import fileUpload from "express-fileupload";
 
 const app = express();
 dotenv.config({ path: "./config/config.env" });
+const allowedOrigins = [
+  'http://localhost:5173',  // Development
+  'https://frontend-theta-brown-31.vercel.app/', // Production
+];
 
-const allowedOrigins = ['http://localhost:5173'];
-
-app.use((req, res, next) => {
-  console.log(`Request received: ${req.method} ${req.url}`);
-  next();
-});
-
-// General CORS middleware (for all routes except login/signup)
+const app = express();
+app.get('/',(req,res)=>{
+    res.send("Hello World")
+})
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
@@ -27,43 +29,10 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ["GET", "PUT", "DELETE", "POST"],
-  credentials: true,
+  credentials: true, // If you need to send cookies
 }));
 
-// Apply CORS specifically to the login/signup routes
-app.use('/api/v1/user/login', cors({
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['POST'],
-  credentials: true,
-}));
 
-app.use('/api/v1/user/signup', cors({
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['POST'],
-  credentials: true,
-}));
-
-// Handle preflight requests
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', allowedOrigins);
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.sendStatus(200);
-});
 
 app.use(cookieParser());
 app.use(express.json());
