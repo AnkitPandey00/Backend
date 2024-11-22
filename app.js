@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import { dbConnection } from "./database/dbConnection.js";
 import { errorMiddleware } from "./middlewares/error.js";
@@ -9,6 +10,32 @@ import fileUpload from "express-fileupload";
 
 const app = express();
 dotenv.config({ path: "./config/config.env" });
+
+const allowedOrigins = ['http://localhost:5173'];
+
+app.use((req, res, next) => {
+  console.log(`Request received: ${req.method} ${req.url}`);
+  next();
+});
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "PUT", "DELETE", "POST"],
+  credentials: true,
+}));
+
+// Handle preflight requests
+app.options('*', cors({
+  origin: allowedOrigins,
+  methods: ["GET", "PUT", "DELETE", "POST"],
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(express.json());
