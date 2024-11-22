@@ -18,6 +18,7 @@ app.use((req, res, next) => {
   next();
 });
 
+// General CORS middleware (for all routes except login/signup)
 app.use(cors({
   origin: (origin, callback) => {
     if (allowedOrigins.includes(origin) || !origin) {
@@ -27,6 +28,31 @@ app.use(cors({
     }
   },
   methods: ["GET", "PUT", "DELETE", "POST"],
+  credentials: true,
+}));
+
+// Apply CORS specifically to the login/signup routes
+app.use('/api/v1/user/login', cors({
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['POST'],
+  credentials: true,
+}));
+
+app.use('/api/v1/user/signup', cors({
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['POST'],
   credentials: true,
 }));
 
