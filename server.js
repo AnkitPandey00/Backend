@@ -8,14 +8,21 @@ cloudinary.v2.config({
   api_secret: process.env.CLOUDINARY_CLIENT_SECRET,
 });
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "PUT", "DELETE", "POST"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+const allowedOrigins = ['http://localhost:5173'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  methods: ["GET", "PUT", "DELETE", "POST"],
+  credentials: true,
+}));
+
+// Handle preflight requests
+app.options('*', cors({
+  origin: allowedOrigins,
+  methods: ["GET", "PUT", "DELETE", "POST"],
+  credentials: true,
+}));
+
 
 app.get('/',(req,res)=>{
   res.send("Hello World")
