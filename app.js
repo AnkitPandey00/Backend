@@ -31,22 +31,22 @@ app.use(cors({
 }));
 
 // Handle preflight requests
-app.options('*', cors({
-  origin: allowedOrigins,
-  methods: ["GET", "PUT", "DELETE", "POST"],
-  credentials: true,
-}));
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', allowedOrigins);
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.sendStatus(200);
+});
 
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use(
-  fileUpload({
-    useTempFiles: true,
-    tempFileDir: "/tmp/",
-  })
-);
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: "/tmp/",
+}));
 
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/blog", blogRouter);
@@ -54,5 +54,9 @@ app.use("/api/v1/blog", blogRouter);
 dbConnection();
 
 app.use(errorMiddleware);
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
 
 export default app;
